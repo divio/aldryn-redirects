@@ -1,0 +1,6 @@
+include LICENSE.txt
+recursive-include aldryn_redirects/locale *
+recursive-include aldryn_redirects/migrations *
+recursive-include aldryn_redirects/templates *
+
+recursive-exclude * *.pyc
