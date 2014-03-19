@@ -18,7 +18,7 @@ pip install django-hvad aldryn-redirects
 # settings.py
 
 INSTALLED_APPS += [
-    'django_hvad',
+    'hvad',
     'aldryn_redirects'
 ]
 

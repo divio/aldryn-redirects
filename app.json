@@ -5,7 +5,7 @@
 	"url": "https://github.com/aldryn/aldryn-redirects",
 	"package-name": "aldryn-redirects",
 	"installed-apps": [
-		"django_hvad",
+		"hvad",
 		"aldryn_redirects"
 	],
 	"author": {
