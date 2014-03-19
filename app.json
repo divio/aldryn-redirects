@@ -1,7 +1,7 @@
 {
 	"name": "Aldryn Redirects",
 	"description": "A modified version of django.contrib.redirects with multilingual target URLs.",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"url": "https://github.com/aldryn/aldryn-redirects",
 	"package-name": "aldryn-redirects",
 	"installed-apps": [
