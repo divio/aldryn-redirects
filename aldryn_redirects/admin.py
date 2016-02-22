@@ -1,11 +1,13 @@
 from django.contrib import admin
+from django import forms
+from parler.admin import TranslatableAdmin
+from aldryn_translation_tools.admin import AllTranslationsMixin
 
-from hvad.admin import TranslatableAdmin
-
+from django.contrib.sites.models import Site
 from .models import Redirect
 
 
-class RedirectAdmin(TranslatableAdmin):
+class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
     list_display = ('old_path',)
     list_filter = ('site',)
     search_fields = ('old_path', 'new_path')

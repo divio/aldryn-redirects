@@ -3,7 +3,8 @@ from setuptools import setup, find_packages
 from aldryn_redirects import __version__
 
 REQUIREMENTS = [
-    'django-hvad'
+    'django-parler',
+    'aldryn-translation-tools',
 ]
 
 CLASSIFIERS = [
