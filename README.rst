@@ -2,12 +2,12 @@
 Aldryn Redirects
 ################
 
-This is a modified version of django's ``django.contrib.redirects`` app that
-supports language dependant target URLs, using ``django-parler``.
+This is a modified version of Django's ``django.contrib.redirects`` app that
+supports language-dependent target URLs, using ``django-parler``.
 
 This is useful for cases in which another middleware strips the language
 prefix from the URL, like django CMS. It allows to define different urls to
-redirect to, depending on the users language.
+redirect to, depending on the user's language.
 
 ************
 Installation
@@ -22,7 +22,7 @@ on the Aldryn Marketplace and follow the instructions.
 
 Manually you can:
 
-#. Choose a site you want to install the add-on to from the dashboard.
+#. Choose a site you want to install the Addon to from the dashboard.
 #. Go to Apps > Install App
 #. Click Install next to the Aldryn Redirects app.
 #. Redeploy the site.
