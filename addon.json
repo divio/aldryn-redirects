@@ -1,7 +1,6 @@
 {
 	"package-name": "aldryn-redirects",
 	"installed-apps": [
-		"hvad",
 		"aldryn_redirects"
 	]
 }
