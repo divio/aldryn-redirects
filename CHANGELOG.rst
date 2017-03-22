@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+1.1.0 (2017-03-21)
+------------------
+
+* Switch from `process_response` to `process_request` in middleware:
+  Changes from a "fallback" middleware that only acted on 404s to an
+  eager middleware, trying to redirect all requests (including such
+  to / without language prefix)
+
+
 1.0.0 (2016-02-23)
 ------------------
 
