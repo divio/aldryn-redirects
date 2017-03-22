@@ -16,7 +16,7 @@ class Redirect(TranslatableModel):
         ),
     )
     translations = TranslatedFields(
-        new_path = models.CharField(
+        new_path=models.CharField(
             _('redirect to'), max_length=200, blank=True,
             help_text=_(
                 "This can be either an absolute path (as above) or a full URL "
@@ -30,12 +30,11 @@ class Redirect(TranslatableModel):
         verbose_name_plural = _('redirects')
         unique_together = (('site', 'old_path'),)
         ordering = ('old_path',)
-    
+
     def __unicode__(self):
         new_paths = ', '.join([
             '{}:{}'.format(t.language_code, t.new_path)
-            for t
-            in self.translations.all()
+            for t in self.translations.all()
         ])
         if not new_paths:
             new_paths = ugettext('None')

@@ -1,9 +1,7 @@
 from django.contrib import admin
-from django import forms
 from parler.admin import TranslatableAdmin
 from aldryn_translation_tools.admin import AllTranslationsMixin
 
-from django.contrib.sites.models import Site
 from .models import Redirect
 
 
