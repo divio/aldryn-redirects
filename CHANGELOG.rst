@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+1.2.0 (2017-06-08)
+------------------
+
+* Changed the redirect lookup to ignore GET parameters
+
+
 1.1.0 (2017-03-21)
 ------------------
 

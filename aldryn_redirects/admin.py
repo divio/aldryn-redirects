@@ -8,7 +8,7 @@ from .models import Redirect
 class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
     list_display = ('old_path',)
     list_filter = ('site',)
-    search_fields = ('old_path', 'new_path')
+    search_fields = ('old_path', 'translations__new_path')
     radio_fields = {'site': admin.VERTICAL}
 
     def get_form(self, request, obj=None, **kwargs):
