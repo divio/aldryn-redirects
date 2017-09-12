@@ -1,10 +1,14 @@
+from __future__ import unicode_literals
+
 from django.db import models
 from django.contrib.sites.models import Site
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from parler.models import TranslatableModel, TranslatedFields
 
 
+@python_2_unicode_compatible
 class Redirect(TranslatableModel):
     site = models.ForeignKey(
         Site, related_name='aldryn_redirects_redirect_set')
@@ -31,7 +35,7 @@ class Redirect(TranslatableModel):
         unique_together = (('site', 'old_path'),)
         ordering = ('old_path',)
 
-    def __unicode__(self):
+    def __str__(self):
         new_paths = ', '.join([
             '{}:{}'.format(t.language_code, t.new_path)
             for t in self.translations.all()
