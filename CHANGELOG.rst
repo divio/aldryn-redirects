@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+1.2.1 (2017-09-13)
+------------------
+
+* Added import / export of redirect entries
+* Minor Python 3 compatibility adjustments
+
+
 1.2.0 (2017-06-08)
 ------------------
 
