@@ -3,6 +3,9 @@
 from __future__ import unicode_literals, print_function, division
 
 HELPER_SETTINGS = {
+    'MIDDLEWARE_CLASSES': [
+        'aldryn_redirects.middleware.RedirectFallbackMiddleware',
+    ],
     'INSTALLED_APPS': [
     ],
     'ALLOWED_HOSTS': [
