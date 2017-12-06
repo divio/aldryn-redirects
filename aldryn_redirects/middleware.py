@@ -1,13 +1,20 @@
+from __future__ import unicode_literals
+
 from django import http
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.db.models import Q
 
-from .models import Redirect
+from .models import Redirect, StaticRedirect
 
 
 class RedirectFallbackMiddleware(object):
-
     def process_request(self, request):
+        static_redirect = StaticRedirect.objects.get_for_request(request)
+        if static_redirect:
+            full_domain = '{}://{}'.format(request.scheme, Site.objects.get(id=settings.SITE_ID).domain)
+            return http.HttpResponsePermanentRedirect(static_redirect.get_outbound_url(full_domain))
+
         path = request.path_info
         path_with_queries = request.get_full_path()
         queries = (

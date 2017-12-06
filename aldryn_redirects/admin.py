@@ -7,14 +7,14 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
-from django.utils.translation import ugettext, ungettext
+from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
 from parler.admin import TranslatableAdmin
 
 from aldryn_translation_tools.admin import AllTranslationsMixin
 
 from .forms import RedirectsImportForm
-from .models import Redirect
+from .models import Redirect, StaticRedirect, StaticRedirectInboundRouteQueryParam
 
 
 class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
@@ -40,7 +40,7 @@ class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
         return url_patterns + super(RedirectAdmin, self).get_urls()
 
     def get_form(self, request, obj=None, **kwargs):
-        form = super(RedirectAdmin,self).get_form(request, obj=None, **kwargs)
+        form = super(RedirectAdmin, self).get_form(request, obj=None, **kwargs)
         site_field = form.base_fields['site']
 
         # the add and change links don't work anyway with admin.VERTICAL radio
@@ -58,12 +58,12 @@ class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
         filename = timezone.now().date().strftime(self.export_filename)
         redirects = self.get_queryset(request).prefetch_related('translations')
 
-        for redirect in redirects:
+        for r in redirects:
             rows = []
-            for translation in redirect.translations.all():
+            for translation in r.translations.all():
                 rows.append([
-                    redirect.site.domain,
-                    redirect.old_path,
+                    r.site.domain,
+                    r.old_path,
                     translation.new_path,
                     translation.language_code,
                 ])
@@ -107,4 +107,17 @@ class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
         return render(request, 'admin/aldryn_redirects/redirect/import_form.html', context)
 
 
+class StaticRedirectInboundRouteQueryParamInline(admin.TabularInline):
+    model = StaticRedirectInboundRouteQueryParam
+    verbose_name = _('Query Param')
+    verbose_name_plural = _('Query Params')
+    extra = 1
+
+
+class StaticRedirectAdmin(admin.ModelAdmin):
+    inlines = [StaticRedirectInboundRouteQueryParamInline]
+    filter_horizontal = ('sites',)
+
+
 admin.site.register(Redirect, RedirectAdmin)
+admin.site.register(StaticRedirect, StaticRedirectAdmin)
