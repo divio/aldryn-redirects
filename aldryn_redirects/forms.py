@@ -61,6 +61,29 @@ def import_from_dataset(dataset):
 class RedirectsImportForm(forms.Form):
     csv_file = forms.FileField(label=_('csv file'), required=True)
 
+    def clean_csv_file(self, *args, **kwargs):
+        csv_file = self.cleaned_data['csv_file']
+        csv_file.seek(0)
+        dataset = Dataset().load(csv_file.read().decode('utf-8'), format='csv')
+        allowed_domains = list(Site.objects.all().values_list('domain', flat=True))
+
+        for idx, row in enumerate(dataset, start=2):
+            if len(row) < 4:
+                raise forms.ValidationError(_('Row {}: malformed.'.format(idx)))
+
+            domain, old_path, new_path, language = [x.strip() for x in row[:4]]
+
+            if domain not in allowed_domains:
+                raise forms.ValidationError(_('Row {}: domain not found.'.format(idx)))
+
+            if not old_path:
+                raise forms.ValidationError(_('Row {}: old path is empty.'.format(idx)))
+
+            if not language:
+                raise forms.ValidationError(_('Row {}: language is empty.'.format(idx)))
+
+        return csv_file
+
     def do_import(self):
         csv_file = self.cleaned_data['csv_file']
         csv_file.seek(0)
