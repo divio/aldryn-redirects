@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
-from django.utils.translation import ugettext, ungettext
+from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
 from parler.admin import TranslatableAdmin
 
@@ -109,14 +109,14 @@ class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
 
 class StaticRedirectInboundRouteQueryParamInline(admin.TabularInline):
     model = StaticRedirectInboundRouteQueryParam
-    verbose_name = 'Query Param'
-    verbose_name_plural = 'Query Params'
+    verbose_name = _('Query Param')
+    verbose_name_plural = _('Query Params')
     extra = 1
 
 
 class StaticRedirectAdmin(admin.ModelAdmin):
-    inlines = [StaticRedirectInboundRouteQueryParamInline, ]
-    filter_horizontal = ('sites', )
+    inlines = [StaticRedirectInboundRouteQueryParamInline]
+    filter_horizontal = ('sites',)
 
 
 admin.site.register(Redirect, RedirectAdmin)

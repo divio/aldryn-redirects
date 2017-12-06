@@ -34,8 +34,8 @@ class Redirect(TranslatableModel):
     )
 
     class Meta:
-        verbose_name = 'Multilanguage Redirect'
-        verbose_name_plural = 'Multilanguage Redirects'
+        verbose_name = _('Multilanguage Redirect')
+        verbose_name_plural = _('Multilanguage Redirects')
         unique_together = (('site', 'old_path'),)
         ordering = ('old_path',)
 
@@ -52,12 +52,14 @@ class Redirect(TranslatableModel):
 class StaticRedirect(models.Model):
     sites = models.ManyToManyField('sites.Site', related_name='+')
     inbound_route = models.CharField(
+        _('Redirect from'),
         max_length=255,
         db_index=True,
         validators=[validate_inbound_route, ],
         help_text=_('Redirect origin. Do not provide the domain. Always add a leading slash here.'),
     )
     outbound_route = models.CharField(
+        _('Redirect to'),
         max_length=255,
         validators=[validate_outbound_route, ],
         help_text=_('Redirect destination. Domain is not required (defaults to inbound route domain).'),
@@ -65,22 +67,25 @@ class StaticRedirect(models.Model):
 
     objects = StaticRedirectManager.as_manager()
 
-    def get_outbound_url(self, request):
-        parsed_outbound_route = urlparse(self.outbound_route)
-        if parsed_outbound_route.netloc and parsed_outbound_route.scheme:
-            return self.outbound_route
-
-        full_domain = '{}://{}'.format(request.scheme, request.site.domain)
-        return urljoin(full_domain, self.outbound_route)
+    class Meta:
+        verbose_name = _('Static Redirect')
+        verbose_name_plural = _('Static Redirects')
 
     def __str__(self):
         return '{} --> {}'.format(self.inbound_route, self.outbound_route)
 
+    def get_outbound_url(self, domain):
+        parsed_outbound_route = urlparse(self.outbound_route)
+        if parsed_outbound_route.netloc and parsed_outbound_route.scheme:
+            return self.outbound_route
+
+        return urljoin(domain, self.outbound_route)
+
 
 class StaticRedirectInboundRouteQueryParam(models.Model):
-    static_redirect = models.ForeignKey(StaticRedirect, related_name='query_params')
-    key = models.CharField(max_length=255)
-    value = models.CharField(max_length=255, blank=True)
+    static_redirect = models.ForeignKey(StaticRedirect, related_name='query_params', on_delete=models.CASCADE)
+    key = models.CharField(_('Key'), max_length=255)
+    value = models.CharField(_('Value'), max_length=255, blank=True)
 
     def __str__(self):
         return '{}="{}"'.format(self.key, self.value)

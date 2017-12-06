@@ -24,6 +24,9 @@ def validate_inbound_route(value):
     if value.endswith('/'):
         raise ValidationError(_('Do not append a trailing slash.'))
 
+    if not re.match(r'^[a-zA-Z0-9\.\_\-\:\/\?\#\&\=\%]+$', value):
+        raise ValidationError(_('Invalid URL provided (invalid characters found).'))
+
     return value
 
 
@@ -32,5 +35,8 @@ def validate_outbound_route(value):
 
     if not re.match(r'^(http://|https://|/)', value):
         raise ValidationError(_('Provide this as either a full url (http://example.com/dest) or a full path (/dest).'))
+
+    if not re.match(r'^[a-zA-Z0-9\.\_\-\:\/\?\#\&\=\%]+$', value):
+        raise ValidationError(_('Invalid URL provided (invalid characters found).'))
 
     return value
