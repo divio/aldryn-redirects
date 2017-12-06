@@ -15,10 +15,18 @@ HELPER_SETTINGS = {
         1: [{
             'code': 'en',
             'name': 'English',
-        }]
+        }],
+        2: [{
+            'code': 'pt-br',
+            'name': 'Brazilian Portugues',
+        }],
     },
     'LANGUAGE_CODE': 'en',
     'DATA_UPLOAD_MAX_NUMBER_FIELDS': 10000,
+    'LANGUAGES': [
+        ('en', 'English'),
+        ('pt-br', 'Brazilian Portugues'),
+    ],
 }
 
 
