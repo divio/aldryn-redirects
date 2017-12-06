@@ -15,9 +15,7 @@ class StaticRedirectManagerTestCase(TestCase):
         self.another_site = Site.objects.create(domain='hamster.com', name='hamster')
 
     def create_fake_request(self, url):
-        request = RequestFactory().get(url)
-        request.site = self.site
-        return request
+        return RequestFactory().get(url)
 
     def test_get_for_request_without_matches(self):
         request = self.create_fake_request('http://example.com/origin')

@@ -15,7 +15,6 @@ class RedirectFallbackMiddlewareTestCase(TestCase):
 
         self.request = RequestFactory().get('http://example.com/path?query1=param1')
         self.site = Site.objects.get()
-        self.request.site = self.site
 
     def test_redirect_found(self):
         redirect = StaticRedirect.objects.create(inbound_route='/path', outbound_route='/dest?keep=this')
