@@ -17,6 +17,17 @@ from .forms import RedirectsImportForm
 from .models import Redirect, StaticRedirect, StaticRedirectInboundRouteQueryParam
 
 
+def delete_selected(modeladmin, request, queryset):
+    deleted_qty = queryset.all().delete()[1]['aldryn_redirects.Redirect']
+
+    object_label = Redirect._meta.verbose_name_plural if deleted_qty > 1 else Redirect._meta.verbose_name
+    msg = _('Successfully deleted {qty} {object_label}.'.format(qty=deleted_qty, object_label=object_label))
+    modeladmin.message_user(request, msg)
+delete_selected.short_description = _(
+    'Delete selected {object_label}'.format(object_label=Redirect._meta.verbose_name_plural)
+)
+
+
 class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
     list_display = ('old_path',)
     list_filter = ('site',)
@@ -24,6 +35,7 @@ class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
     radio_fields = {'site': admin.VERTICAL}
     export_filename = 'redirects-%Y-%m-%d.csv'
     export_headers = ['Domain', 'Old', 'New', 'Language']
+    actions = [delete_selected]
 
     def get_urls(self):
         from django.conf.urls import url
