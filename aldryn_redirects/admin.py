@@ -2,7 +2,8 @@ from __future__ import unicode_literals
 
 from tablib import Dataset
 
-from django.contrib import admin
+from django.conf import settings
+from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -17,17 +18,6 @@ from .forms import RedirectsImportForm
 from .models import Redirect, StaticRedirect, StaticRedirectInboundRouteQueryParam
 
 
-def delete_selected(modeladmin, request, queryset):
-    deleted_qty = queryset.all().delete()[1]['aldryn_redirects.Redirect']
-
-    object_label = Redirect._meta.verbose_name_plural if deleted_qty > 1 else Redirect._meta.verbose_name
-    msg = _('Successfully deleted {qty} {object_label}.'.format(qty=deleted_qty, object_label=object_label))
-    modeladmin.message_user(request, msg)
-delete_selected.short_description = _(
-    'Delete selected {object_label}'.format(object_label=Redirect._meta.verbose_name_plural)
-)
-
-
 class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
     list_display = ('old_path',)
     list_filter = ('site',)
@@ -35,7 +25,7 @@ class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
     radio_fields = {'site': admin.VERTICAL}
     export_filename = 'redirects-%Y-%m-%d.csv'
     export_headers = ['Domain', 'Old', 'New', 'Language']
-    actions = [delete_selected]
+    actions = ['delete_selected']
 
     def get_urls(self):
         from django.conf.urls import url
@@ -117,6 +107,27 @@ class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
             'errors': form.errors,
         }
         return render(request, 'admin/aldryn_redirects/redirect/import_form.html', context)
+
+    def delete_selected(self, request, queryset):
+        max_items_deletion = getattr(settings, 'DATA_UPLOAD_MAX_NUMBER_FIELDS', 1000)  # Django 1.10+
+
+        if queryset.count() > max_items_deletion:
+            msg = _('Too many items for deletion. Only first {qty} items were deleted.'.format(qty=max_items_deletion))
+            self.message_user(request, msg, level=messages.WARNING)
+
+            # <Queryset>.delete() can not be used with sliced querysets
+            inner_qs = queryset.all()[:max_items_deletion].values_list('id')
+            deleted_qty = queryset.filter(id__in=inner_qs).delete()[1]['aldryn_redirects.Redirect']
+
+        else:
+            deleted_qty = queryset.all().delete()[1]['aldryn_redirects.Redirect']
+
+        object_label = Redirect._meta.verbose_name_plural if deleted_qty > 1 else Redirect._meta.verbose_name
+        msg = _('Successfully deleted {qty} {object_label}.'.format(qty=deleted_qty, object_label=object_label))
+        self.message_user(request, msg)
+    delete_selected.short_description = _(
+        'Delete selected {object_label}'.format(object_label=Redirect._meta.verbose_name_plural)
+    )
 
 
 class StaticRedirectInboundRouteQueryParamInline(admin.TabularInline):
