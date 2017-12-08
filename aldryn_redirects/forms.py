@@ -4,6 +4,7 @@ from collections import defaultdict
 from tablib import Dataset
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
@@ -58,8 +59,55 @@ def import_from_dataset(dataset):
     return new
 
 
+def validate_row(row, site_domain_id_mapping):
+    def _flatten_error(e):
+        result = []
+        for key, values in e.message_dict.items():
+            for value in values:
+                result.append('{}: {}'.format(key, value))
+
+        return '\n'.join(result)
+
+    if len(row) < 4:
+        raise ValidationError(_(
+            'malformed row. Row must contain site (required), '
+            'old_path (required), new_path (optional) and language_code (required).'
+        ))
+
+    domain, old_path, new_path, language = [x.strip() for x in row[:4]]
+
+    if domain not in site_domain_id_mapping.keys():
+        raise ValidationError(_('domain not found.'))
+
+    redirect = Redirect(site_id=site_domain_id_mapping[domain], old_path=old_path)
+    try:
+        redirect.full_clean(validate_unique=False)
+    except ValidationError as e:
+        raise ValidationError(_flatten_error(e))
+
+    redirect_translation = redirect.translations.model(master=redirect, language_code=language, new_path=new_path)
+    try:
+        redirect_translation.full_clean(validate_unique=False)
+    except ValidationError as e:
+        raise ValidationError(_flatten_error(e))
+
+
 class RedirectsImportForm(forms.Form):
     csv_file = forms.FileField(label=_('csv file'), required=True)
+
+    def clean_csv_file(self, *args, **kwargs):
+        csv_file = self.cleaned_data['csv_file']
+        csv_file.seek(0)
+        dataset = Dataset().load(csv_file.read().decode('utf-8'), format='csv')
+        site_domain_id_mapping = dict(Site.objects.values_list('domain', 'id'))
+
+        for idx, row in enumerate(dataset, start=2):
+            try:
+                validate_row(row, site_domain_id_mapping)
+            except ValidationError as e:
+                raise forms.ValidationError('Line {}: {}'.format(idx, e))
+
+        return csv_file
 
     def do_import(self):
         csv_file = self.cleaned_data['csv_file']

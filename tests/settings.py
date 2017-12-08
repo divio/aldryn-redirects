@@ -15,9 +15,17 @@ HELPER_SETTINGS = {
         1: [{
             'code': 'en',
             'name': 'English',
-        }]
+        }],
+        2: [{
+            'code': 'pt-br',
+            'name': 'Brazilian Portugues',
+        }],
     },
     'LANGUAGE_CODE': 'en',
+    'LANGUAGES': [
+        ('en', 'English'),
+        ('pt-br', 'Brazilian Portugues'),
+    ],
 }
 
 
