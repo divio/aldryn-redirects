@@ -112,21 +112,20 @@ class RedirectAdmin(AllTranslationsMixin, TranslatableAdmin):
         max_items_deletion = getattr(settings, 'DATA_UPLOAD_MAX_NUMBER_FIELDS', 1000)  # Django 1.10+
 
         if queryset.count() > max_items_deletion:
-            msg = _('Too many items for deletion. Only first {qty} items were deleted.'.format(qty=max_items_deletion))
+            msg = _('Too many items for deletion. Only first {qty} items were deleted.').format(qty=max_items_deletion)
             self.message_user(request, msg, level=messages.WARNING)
 
             # <Queryset>.delete() can not be used with sliced querysets
-            inner_qs = queryset.all()[:max_items_deletion].values_list('id')
-            deleted_qty = queryset.filter(id__in=inner_qs).delete()[1]['aldryn_redirects.Redirect']
+            inner_qs = queryset.all()[:max_items_deletion]
+            queryset = queryset.filter(id__in=inner_qs)
 
-        else:
-            deleted_qty = queryset.all().delete()[1]['aldryn_redirects.Redirect']
+        deleted_qty = queryset.all().delete()[1]['aldryn_redirects.Redirect']
 
-        object_label = Redirect._meta.verbose_name_plural if deleted_qty > 1 else Redirect._meta.verbose_name
-        msg = _('Successfully deleted {qty} {object_label}.'.format(qty=deleted_qty, object_label=object_label))
+        object_label = self.opts.verbose_name_plural if deleted_qty > 1 else self.opts.verbose_name
+        msg = _('Successfully deleted {qty} {object_label}.').format(qty=deleted_qty, object_label=object_label)
         self.message_user(request, msg)
-    delete_selected.short_description = _(
-        'Delete selected {object_label}'.format(object_label=Redirect._meta.verbose_name_plural)
+    delete_selected.short_description = _('Delete selected {object_label}').format(
+        object_label=Redirect._meta.verbose_name_plural
     )
 
 
