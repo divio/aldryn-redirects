@@ -17,7 +17,7 @@ class Redirect(TranslatableModel):
     site = models.ForeignKey(
         Site, related_name='aldryn_redirects_redirect_set')
     old_path = models.CharField(
-        _('redirect from'), max_length=200, db_index=True,
+        _('redirect from'), max_length=400, db_index=True,
         help_text=_(
             "This should be an absolute path, excluding the domain name. "
             "Example: '/events/search/'."
@@ -25,7 +25,7 @@ class Redirect(TranslatableModel):
     )
     translations = TranslatedFields(
         new_path=models.CharField(
-            _('redirect to'), max_length=200, blank=True,
+            _('redirect to'), max_length=400, blank=True,
             help_text=_(
                 "This can be either an absolute path (as above) or a full URL "
                 "starting with 'http://'."
