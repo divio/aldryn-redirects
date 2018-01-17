@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -75,11 +76,10 @@ class StaticRedirect(models.Model):
     def __str__(self):
         return '{} --> {}'.format(self.inbound_route, self.outbound_route)
 
-    def get_admin_url(self):
-        from django.core.urlresolvers import reverse
+    def get_admin_change_url(self):
         return reverse(
-            "admin:{}_{}_change".format(self._meta.app_label, self.__class__.__name__.lower()),
-            args=(self.id, )
+            "admin:{}_{}_change".format(self._meta.app_label, self._meta.model_name),
+            args=(self.pk, )
         )
 
     def get_outbound_url(self, domain):

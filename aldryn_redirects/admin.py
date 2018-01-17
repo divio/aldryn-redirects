@@ -159,16 +159,16 @@ class StaticRedirectAdmin(DeletionMixin, admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(StaticRedirectAdmin, self).get_form(request, obj=None, **kwargs)
-        field = form.base_fields['sites']
+        sites_field = form.base_fields['sites']
 
         # the add and change links don't work anyway with admin.VERTICAL radio
         # fields
-        field.widget.can_add_related = False
-        field.widget.can_change_related = False
+        sites_field.widget.can_add_related = False
+        sites_field.widget.can_change_related = False
 
         # if there is only one site, select it by default
-        if field.queryset.all().count() == 1:
-            field.initial = field.queryset.get()
+        if sites_field.queryset.all().count() == 1:
+            sites_field.initial = sites_field.queryset.get()
         return form
 
     def export_view(self, request):

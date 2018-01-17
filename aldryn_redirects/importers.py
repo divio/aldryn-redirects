@@ -142,6 +142,7 @@ class StaticRedirectImporter(FlattenErrorMixin, object):
         for dupe in StaticRedirect.objects.filter(inbound_route=inbound_route, outbound_route=outbound_route):
             dupe_query_params = dupe.query_params.as_dict()
             if (dupe_query_params == query_params) and (dupe.sites.filter(domain=domain).exists()):
+                admin_url = dupe.get_admin_change_url()
                 raise ValidationError(
-                    _('Rule duplicated with <a href="{}" target="_blank">this one</a>').format(dupe.get_admin_url())
+                    _('Rule duplicated with <a href="{}" target="_blank">this one</a>').format(admin_url)
                 )
