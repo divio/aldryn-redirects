@@ -8,7 +8,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from parler.models import TranslatableModel, TranslatedFields
 from six.moves.urllib.parse import urlparse, urljoin
 
-from .managers import StaticRedirectManager
+from .managers import StaticRedirectManager, StaticRedirectInboundRouteQueryParamManager
+from .utils import add_query_params_to_url
 from .validators import validate_inbound_route, validate_outbound_route
 
 
@@ -74,6 +75,13 @@ class StaticRedirect(models.Model):
     def __str__(self):
         return '{} --> {}'.format(self.inbound_route, self.outbound_route)
 
+    def get_admin_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse(
+            "admin:{}_{}_change".format(self._meta.app_label, self.__class__.__name__.lower()),
+            args=(self.id, )
+        )
+
     def get_outbound_url(self, domain):
         parsed_outbound_route = urlparse(self.outbound_route)
         if parsed_outbound_route.netloc and parsed_outbound_route.scheme:
@@ -81,11 +89,16 @@ class StaticRedirect(models.Model):
 
         return urljoin(domain, self.outbound_route)
 
+    def get_full_inbound_route(self):
+        return add_query_params_to_url(self.inbound_route, self.query_params.as_dict())
+
 
 class StaticRedirectInboundRouteQueryParam(models.Model):
     static_redirect = models.ForeignKey(StaticRedirect, related_name='query_params', on_delete=models.CASCADE)
     key = models.CharField(_('Key'), max_length=255)
     value = models.CharField(_('Value'), max_length=255, blank=True)
+
+    objects = StaticRedirectInboundRouteQueryParamManager.as_manager()
 
     def __str__(self):
         return '{}="{}"'.format(self.key, self.value)
