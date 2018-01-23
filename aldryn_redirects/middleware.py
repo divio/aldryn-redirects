@@ -37,6 +37,8 @@ class RedirectFallbackMiddleware(object):
         except Redirect.DoesNotExist:
             return
 
-        if r.new_path == '':
+        new_path = r.safe_translation_getter('new_path', any_language=True)
+
+        if new_path in (None, ''):
             return http.HttpResponseGone()
         return http.HttpResponsePermanentRedirect(r.new_path)
