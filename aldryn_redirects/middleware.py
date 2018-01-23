@@ -41,4 +41,4 @@ class RedirectFallbackMiddleware(object):
 
         if new_path in (None, ''):
             return http.HttpResponseGone()
-        return http.HttpResponsePermanentRedirect(r.new_path)
+        return http.HttpResponsePermanentRedirect(new_path)
