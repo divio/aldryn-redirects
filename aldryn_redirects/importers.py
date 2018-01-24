@@ -9,6 +9,7 @@ from .utils import get_query_params_dict, remove_query_params
 
 
 class FlattenErrorMixin(object):
+
     def flatten_error(self, e):
         result = []
         for key, values in e.message_dict.items():
@@ -19,14 +20,15 @@ class FlattenErrorMixin(object):
 
 
 class RedirectImporter(FlattenErrorMixin, object):
+
     def __init__(self):
         self.sites_per_domain = {site.domain: site for site in Site.objects.all()}
 
-    def get_existing_redirects(self, paths):
+    def get_existing_redirects(self, site, paths):
         redirects = (
             Redirect
             .objects
-            .filter(old_path__in=paths)
+            .filter(site=site, old_path__in=paths)
             .prefetch_related('translations')
         )
         existing_redirects = defaultdict(dict)
@@ -49,7 +51,7 @@ class RedirectImporter(FlattenErrorMixin, object):
 
         for site in sites.iterator():
             _redirects = imported_redirects[site.domain]
-            existing_redirects = self.get_existing_redirects(list(_redirects.keys()))
+            existing_redirects = self.get_existing_redirects(site, list(_redirects.keys()))
 
             for path in _redirects:
                 if path not in existing_redirects:
@@ -91,6 +93,7 @@ class RedirectImporter(FlattenErrorMixin, object):
 
 
 class StaticRedirectImporter(FlattenErrorMixin, object):
+
     def __init__(self):
         self.sites_per_domain = {site.domain: site for site in Site.objects.all()}
 
