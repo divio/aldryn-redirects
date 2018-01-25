@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from parler.admin import TranslatableAdmin
 
@@ -141,7 +141,7 @@ class StaticRedirectAdmin(DeletionMixin, admin.ModelAdmin):
 
     # Custom attributes
     export_filename = 'static-redirects-%Y-%m-%d.csv'
-    export_headers = ['Domain', 'inbound_route', 'outbound_route']
+    export_headers = ['domain', 'inbound_route', 'outbound_route']
 
     def get_urls(self):
         from django.conf.urls import url

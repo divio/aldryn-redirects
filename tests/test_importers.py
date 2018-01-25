@@ -6,6 +6,44 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from aldryn_redirects.importers import RedirectImporter
+from aldryn_redirects.models import Redirect
+
+
+class RedirectImporterGetExistingRedirectsTestCase(TestCase):
+    def setUp(self):
+        super(RedirectImporterGetExistingRedirectsTestCase, self).setUp()
+        self.get_existing_redirects = RedirectImporter().get_existing_redirects
+
+    def test_common(self):
+        site1 = Site.objects.get()
+        site2 = Site.objects.create(domain='testtest.com')
+
+        redirect1 = Redirect.objects.create(site=site1, old_path='/old1')
+        redirect1.translations.create(language_code='de', new_path='/new1/de')
+        redirect1.translations.create(language_code='pt', new_path='/new1/pt')
+
+        redirect2 = Redirect.objects.create(site=site1, old_path='/old2')
+        redirect2.translations.create(language_code='de', new_path='/new1/de')
+
+        redirect3 = Redirect.objects.create(site=site2, old_path='/old1')
+        redirect3.translations.create(language_code='de', new_path='/new1/de')
+
+        # Noise
+        Redirect.objects.create(site=site1, old_path='/xxx/old1')
+        Redirect.objects.create(site=site1, old_path='/old1/xxx')
+
+        result = self.get_existing_redirects(site1, ['/old1', '/old2'])
+        self.assertEquals(list(result.keys()), ['/old1', '/old2'])
+        self.assertEquals(list(result.values()), [redirect1, redirect2])
+        self.assertFalse(hasattr(redirect1, '_languages'))
+        self.assertFalse(hasattr(redirect2, '_languages'))
+        enriched_redirect1, enriched_redirect2 = result.values()
+        self.assertEquals(enriched_redirect1._languages, ['de', 'pt'])
+        self.assertEquals(enriched_redirect2._languages, ['de'])
+
+        result = self.get_existing_redirects(site2, ['/old1', '/old2'])
+        self.assertEquals(list(result.keys()), ['/old1'])
+        self.assertEquals(list(result.values()), [redirect3])
 
 
 class RedirectImporterValidateRowTestCase(TestCase):
