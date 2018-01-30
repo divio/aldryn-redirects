@@ -6,7 +6,6 @@ REQUIREMENTS = [
     'tablib',
     'django-parler',
     'aldryn-translation-tools',
-    'openpyxl<=2.4.9',  # 2.5.0b1 is raising "ImportError: cannot import name '__version__'"
 ]
 
 CLASSIFIERS = [
