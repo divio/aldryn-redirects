@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from aldryn_redirects.importers import RedirectImporter, StaticRedirectImporter
-from aldryn_redirects.models import Redirect, StaticRedirect
+from aldryn_redirects.models import Redirect, StaticRedirect, StaticRedirectInboundRouteQueryParam
 
 
 class RedirectImporterGetExistingRedirectsTestCase(TestCase):
@@ -172,3 +172,86 @@ class StaticRedirectImporterValidateRowTestCase(TestCase):
         redirect = StaticRedirect.objects.create(inbound_route='/origin/path', outbound_route='/destination/path')
         redirect.sites.add(Site.objects.first())
         self.validate_row(self.row)  # Nothing raised
+
+
+class StaticRedirectImporterImportFromDatasetTestCase(TestCase):
+    def setUp(self):
+        super(StaticRedirectImporterImportFromDatasetTestCase, self).setUp()
+        self.site = Site.objects.first()
+        self.dataset = [
+            [self.site.domain, '/origin/path?query=param&empty=', '/destination/path']
+        ]
+        self.import_from_dataset = StaticRedirectImporter().import_from_dataset
+
+    def test_common(self):
+        self.assertEquals(StaticRedirect.objects.count(), 0)
+        self.assertEquals(StaticRedirectInboundRouteQueryParam.objects.count(), 0)
+
+        self.import_from_dataset(self.dataset)
+
+        self.assertEquals(StaticRedirect.objects.count(), 1)
+        self.assertEquals(StaticRedirectInboundRouteQueryParam.objects.count(), 2)
+
+        redirect = StaticRedirect.objects.get()
+        self.assertEquals(redirect.sites.count(), 1)
+        self.assertTrue(redirect.sites.filter(domain=self.dataset[0][0]).exists())
+
+        self.assertEquals(redirect.inbound_route, self.dataset[0][1].split('?')[0])  # no query params here
+        self.assertEquals(redirect.outbound_route, self.dataset[0][2])
+
+        self.assertEquals(redirect.query_params.count(), 2)
+        self.assertTrue(redirect.query_params.filter(key='query', value='param').exists())
+        self.assertTrue(redirect.query_params.filter(key='empty', value='').exists())
+
+    def test_update_existing_rows_is_ok(self):
+        self.assertEquals(StaticRedirect.objects.count(), 0)
+        self.assertEquals(StaticRedirectInboundRouteQueryParam.objects.count(), 0)
+
+        self.import_from_dataset(self.dataset)
+
+        self.assertEquals(StaticRedirect.objects.count(), 1)
+        self.assertEquals(StaticRedirectInboundRouteQueryParam.objects.count(), 2)
+        self.assertEquals(StaticRedirect.objects.get().outbound_route, self.dataset[0][2])
+
+        self.dataset[0][2] = 'new-destination'
+        self.import_from_dataset(self.dataset)
+
+        self.assertEquals(StaticRedirect.objects.count(), 1)
+        self.assertEquals(StaticRedirectInboundRouteQueryParam.objects.count(), 2)
+        self.assertEquals(StaticRedirect.objects.get().outbound_route, 'new-destination')
+
+    def test_incremental_import_is_ok(self):
+        self.assertEquals(StaticRedirect.objects.count(), 0)
+        self.assertEquals(StaticRedirectInboundRouteQueryParam.objects.count(), 0)
+
+        self.import_from_dataset(self.dataset)
+
+        self.assertEquals(StaticRedirect.objects.count(), 1)
+        self.assertEquals(StaticRedirectInboundRouteQueryParam.objects.count(), 2)
+
+        self.dataset.append([Site.objects.first().domain, '/origin2', '/destination2'])
+        self.import_from_dataset(self.dataset)
+
+        self.assertEquals(StaticRedirect.objects.count(), 2)
+        self.assertEquals(StaticRedirectInboundRouteQueryParam.objects.count(), 2)
+
+        qs = StaticRedirect.objects.filter(
+            sites=self.site, inbound_route='/origin/path', outbound_route='/destination/path'
+        )
+        self.assertEquals(qs.count(), 1)
+
+        qs = StaticRedirect.objects.filter(
+            sites=self.site, inbound_route='/origin2', outbound_route='/destination2'
+        )
+        self.assertEquals(qs.count(), 1)
+
+    def test_importing_many_times_is_ok(self):
+        self.assertEquals(StaticRedirect.objects.count(), 0)
+        self.assertEquals(StaticRedirectInboundRouteQueryParam.objects.count(), 0)
+
+        self.import_from_dataset(self.dataset)
+        self.import_from_dataset(self.dataset)
+        self.import_from_dataset(self.dataset)
+
+        self.assertEquals(StaticRedirect.objects.count(), 1)
+        self.assertEquals(StaticRedirectInboundRouteQueryParam.objects.count(), 2)
