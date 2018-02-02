@@ -106,15 +106,20 @@ class StaticRedirectImporter(FlattenErrorMixin, object):
             if query_params:
                 inbound_route = remove_query_params(inbound_route)
 
-            existing_redirect_updated = False
-            dupe = StaticRedirect.objects.filter(inbound_route=inbound_route, outbound_route=outbound_route).first()
-            if dupe:
-                dupe_query_params = dupe.query_params.as_dict()
+            redirect = None
+            for dupe_candidate in StaticRedirect.objects.filter(inbound_route=inbound_route):
+                dupe_query_params = dupe_candidate.query_params.as_dict()
                 if dupe_query_params == query_params:
-                    dupe.sites.add(site)
-                    existing_redirect_updated = True
+                    redirect = dupe_candidate
 
-            if not existing_redirect_updated:
+                    if redirect.outbound_route != outbound_route:
+                        redirect.outbound_route = outbound_route
+                        redirect.save(update_fields=['outbound_route'])
+
+                    redirect.sites.add(site)
+                    break
+
+            if not redirect:
                 redirect = StaticRedirect.objects.create(inbound_route=inbound_route, outbound_route=outbound_route)
                 redirect.sites.add(site)
                 for key, value in query_params.items():
@@ -141,11 +146,3 @@ class StaticRedirectImporter(FlattenErrorMixin, object):
             redirect.full_clean()
         except ValidationError as e:
             raise ValidationError(self.flatten_error(e))
-
-        for dupe in StaticRedirect.objects.filter(inbound_route=inbound_route, outbound_route=outbound_route):
-            dupe_query_params = dupe.query_params.as_dict()
-            if (dupe_query_params == query_params) and (dupe.sites.filter(domain=domain).exists()):
-                admin_url = dupe.get_admin_change_url()
-                raise ValidationError(
-                    _('Rule duplicated with <a href="{}" target="_blank">this one</a>').format(admin_url)
-                )
