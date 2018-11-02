@@ -4,11 +4,12 @@ from django import http
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db.models import Q
+from django.utils.deprecation import MiddlewareMixin
 
 from .models import Redirect, StaticRedirect
 
 
-class RedirectFallbackMiddleware(object):
+class RedirectFallbackMiddleware(MiddlewareMixin):
     def process_request(self, request):
         static_redirect = StaticRedirect.objects.get_for_request(request)
         if static_redirect:
