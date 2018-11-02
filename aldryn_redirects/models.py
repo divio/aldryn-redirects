@@ -34,6 +34,8 @@ class Redirect(TranslatableModel):
             ),
         ),
     )
+    creation_date = models.DateTimeField(_("creation date"), auto_now_add=True)
+    changed_date = models.DateTimeField(_("changed date"), auto_now=True)
 
     class Meta:
         verbose_name = _('Multilanguage Redirect')
@@ -66,6 +68,8 @@ class StaticRedirect(models.Model):
         validators=[validate_outbound_route, ],
         help_text=_('Redirect destination. Domain is not required (defaults to inbound route domain).'),
     )
+    creation_date = models.DateTimeField(_("creation date"), auto_now_add=True)
+    changed_date = models.DateTimeField(_("changed date"), auto_now=True)
 
     objects = StaticRedirectManager.as_manager()
 

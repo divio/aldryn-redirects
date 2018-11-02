@@ -47,6 +47,7 @@ class RedirectAdmin(DeletionMixin, AllTranslationsMixin, TranslatableAdmin):
     radio_fields = {'site': admin.VERTICAL}
     export_filename = 'redirects-%Y-%m-%d.csv'
     export_headers = ['Domain', 'Old', 'New', 'Language']
+    readonly_fields = ("creation_date", "changed_date",)
 
     def get_urls(self):
         from django.conf.urls import url
@@ -136,8 +137,9 @@ class StaticRedirectAdmin(DeletionMixin, admin.ModelAdmin):
     inlines = [StaticRedirectInboundRouteQueryParamInline]
     filter_horizontal = ('sites',)
     list_filter = ('sites',)
-    list_display = ('inbound_route', 'outbound_route')
+    list_display = ('inbound_route', 'outbound_route',)
     search_fields = list_display
+    readonly_fields = ("creation_date", "changed_date",)
 
     # Custom attributes
     export_filename = 'static-redirects-%Y-%m-%d.csv'
