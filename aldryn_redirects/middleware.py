@@ -4,7 +4,11 @@ from django import http
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db.models import Q
-from django.utils.deprecation import MiddlewareMixin
+try:
+    from django.utils.deprecation import MiddlewareMixin
+except ImportError:
+    # Django<1.10
+    MiddlewareMixin = object
 
 from .models import Redirect, StaticRedirect
 
