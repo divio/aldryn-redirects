@@ -73,7 +73,7 @@ class RedirectAdmin(DeletionMixin, AllTranslationsMixin, TranslatableAdmin):
 
         # if there is only one site, select it by default
         if site_field.queryset.all().count() == 1:
-            site_field.initial = [site_field.queryset.get(), ]
+            site_field.initial = site_field.queryset.get()
         return form
 
     def export_view(self, request):
