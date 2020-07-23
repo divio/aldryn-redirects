@@ -4,7 +4,7 @@ from tablib import Dataset
 
 from django.conf import settings
 from django.contrib import admin, messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
