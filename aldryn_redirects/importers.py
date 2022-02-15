@@ -2,13 +2,13 @@ from collections import defaultdict
 
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .models import Redirect, StaticRedirect
 from .utils import get_query_params_dict, remove_query_params
 
 
-class FlattenErrorMixin(object):
+class FlattenErrorMixin():
 
     def flatten_error(self, e):
         result = []
@@ -19,7 +19,7 @@ class FlattenErrorMixin(object):
         return '\n'.join(result)
 
 
-class RedirectImporter(FlattenErrorMixin, object):
+class RedirectImporter(FlattenErrorMixin):
 
     def __init__(self):
         self.sites_per_domain = {site.domain: site for site in Site.objects.all()}
@@ -92,7 +92,7 @@ class RedirectImporter(FlattenErrorMixin, object):
             raise ValidationError(self.flatten_error(e))
 
 
-class StaticRedirectImporter(FlattenErrorMixin, object):
+class StaticRedirectImporter(FlattenErrorMixin):
 
     def __init__(self):
         self.sites_per_domain = {site.domain: site for site in Site.objects.all()}

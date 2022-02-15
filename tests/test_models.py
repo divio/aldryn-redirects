@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function, division
+from __future__ import print_function, division
 
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
