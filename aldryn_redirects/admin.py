@@ -1,14 +1,12 @@
-from __future__ import unicode_literals
-
 from tablib import Dataset
 
 from django.conf import settings
 from django.contrib import admin, messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from parler.admin import TranslatableAdmin
 
@@ -18,7 +16,7 @@ from .forms import RedirectsImportForm, StaticRedirectsImportForm
 from .models import Redirect, StaticRedirect, StaticRedirectInboundRouteQueryParam
 
 
-class DeletionMixin(object):
+class DeletionMixin():
     actions = ['delete_selected']
 
     def delete_selected(self, request, queryset):
@@ -118,8 +116,8 @@ class RedirectAdmin(DeletionMixin, AllTranslationsMixin, TranslatableAdmin):
             'root_path': reverse('admin:index'),
             'current_app': self.admin_site.name,
             'app_label': opts.app_label,
-            'title': ugettext('Import redirects'),
-            'original': ugettext('Import redirects'),
+            'title': gettext('Import redirects'),
+            'original': gettext('Import redirects'),
             'errors': form.errors,
         }
         return render(request, 'admin/aldryn_redirects/redirect/import_form.html', context)
@@ -211,8 +209,8 @@ class StaticRedirectAdmin(DeletionMixin, admin.ModelAdmin):
             'root_path': reverse('admin:index'),
             'current_app': self.admin_site.name,
             'app_label': opts.app_label,
-            'title': ugettext('Import redirects'),
-            'original': ugettext('Import redirects'),
+            'title': gettext('Import redirects'),
+            'original': gettext('Import redirects'),
             'errors': form.errors,
         }
         return render(request, 'admin/aldryn_redirects/staticredirect/import_form.html', context)

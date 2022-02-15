@@ -1,10 +1,7 @@
-from __future__ import unicode_literals
-
 from django.db import models
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _, gettext
 
 from parler.models import TranslatableModel, TranslatedFields
 from six.moves.urllib.parse import urlparse, urljoin
@@ -14,10 +11,12 @@ from .utils import add_query_params_to_url
 from .validators import validate_inbound_route, validate_outbound_route
 
 
-@python_2_unicode_compatible
 class Redirect(TranslatableModel):
     site = models.ForeignKey(
-        Site, related_name='aldryn_redirects_redirect_set')
+        Site,
+        related_name='aldryn_redirects_redirect_set',
+        on_delete=models.deletion.CASCADE,
+    )
     old_path = models.CharField(
         _('redirect from'), max_length=400, db_index=True,
         help_text=_(
@@ -47,7 +46,7 @@ class Redirect(TranslatableModel):
             for t in self.translations.all()
         ])
         if not new_paths:
-            new_paths = ugettext('None')
+            new_paths = gettext('None')
         return "{} ---> {}".format(self.old_path or 'None', new_paths)
 
 
@@ -94,7 +93,7 @@ class StaticRedirect(models.Model):
 
 
 class StaticRedirectInboundRouteQueryParam(models.Model):
-    static_redirect = models.ForeignKey(StaticRedirect, related_name='query_params', on_delete=models.CASCADE)
+    static_redirect = models.ForeignKey(StaticRedirect, related_name='query_params', on_delete=models.deletion.CASCADE)
     key = models.CharField(_('Key'), max_length=255)
     value = models.CharField(_('Value'), max_length=255, blank=True)
 

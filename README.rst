@@ -55,8 +55,8 @@ INSTALLED_APPS += [
     'aldryn_redirects'
 ]
 
-# add the middleware somewhere near the top of MIDDLEWARE_CLASSES
+# add the middleware somewhere near the top of MIDDLEWARE
 
-MIDDLEWARE_CLASSES.insert(
+MIDDLEWARE.insert(
     0, 'aldryn_redirects.middleware.RedirectFallbackMiddleware')
 ```
